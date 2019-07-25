@@ -4,6 +4,8 @@ import tornado.websocket
 
 import logging
 
+import motor
+
 
 logging.basicConfig(format='%(asctime)s  %(levelname)-8s '
                            '[%(filename)s:%(lineno)d] %(message)s',
@@ -16,16 +18,28 @@ class MainHandler(tornado.web.RequestHandler):
         self.write('!TEST!')
 
 
+async def foobar():
+    client = motor.motor_tornado.MotorClient()
+    db = client.test
+    res = await db.collection.find_one({'item':'planner'})
+    print(res, flush=True)
+
+
 class ChatHandler(tornado.websocket.WebSocketHandler):
+    connections = set()
+
     def check_origin(self, origin: str) -> bool:
         return True
 
     def open(self):
         logging.info(f'Client connected!')
+        self.connections.add(self)
 
     def on_message(self, message):
         logging.info(f'ON MESSAGE METHOD, {message}')
-        self.write(message)
+        #tornado.ioloop.IOLoop().current().run_sync(foobar)
+        for connection in self.connections:
+            connection.write_message(message)
 
     def close(self):
         logging.info('Someone has left the chat...')
