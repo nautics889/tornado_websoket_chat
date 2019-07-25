@@ -5,6 +5,7 @@ import tornado.websocket
 import logging
 
 import motor
+import asyncio
 
 
 logging.basicConfig(format='%(asctime)s  %(levelname)-8s '
@@ -19,10 +20,15 @@ class MainHandler(tornado.web.RequestHandler):
 
 
 async def foobar():
-    client = motor.motor_tornado.MotorClient()
-    db = client.test
-    res = await db.collection.find_one({'item':'planner'})
+    res = 123
+    # client = motor.motor_tornado.MotorClient()
+    # db = client.test
+    # res = await db.collection.find_one({'item':'planner'})
     print(res, flush=True)
+    logging.debug('Before await')
+    await asyncio.sleep(1)
+    print(321, flush=True)
+    logging.debug('After await')
 
 
 class ChatHandler(tornado.websocket.WebSocketHandler):
@@ -37,7 +43,7 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         logging.info(f'ON MESSAGE METHOD, {message}')
-        #tornado.ioloop.IOLoop().current().run_sync(foobar)
+        tornado.ioloop.IOLoop().current().run_sync(foobar)
         for connection in self.connections:
             connection.write_message(message)
 
