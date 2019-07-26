@@ -20,15 +20,10 @@ class MainHandler(tornado.web.RequestHandler):
 
 
 async def foobar():
-    res = 123
-    # client = motor.motor_tornado.MotorClient()
-    # db = client.test
-    # res = await db.collection.find_one({'item':'planner'})
+    client = motor.motor_tornado.MotorClient()
+    db = client.test
+    res = await db.inventory.find_one({'item':'planner'})
     print(res, flush=True)
-    logging.debug('Before await')
-    await asyncio.sleep(1)
-    print(321, flush=True)
-    logging.debug('After await')
 
 
 class ChatHandler(tornado.websocket.WebSocketHandler):
@@ -41,9 +36,12 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         logging.info(f'Client connected!')
         self.connections.add(self)
 
-    def on_message(self, message):
+    async def on_message(self, message):
         logging.info(f'ON MESSAGE METHOD, {message}')
-        tornado.ioloop.IOLoop().current().run_sync(foobar)
+        client = motor.motor_tornado.MotorClient()
+        db = client.test
+        res = await db.inventory.find_one({'item': 'planner'})
+        print(res, flush=True)
         for connection in self.connections:
             connection.write_message(message)
 
