@@ -19,13 +19,6 @@ class MainHandler(tornado.web.RequestHandler):
         self.write('!TEST!')
 
 
-async def foobar():
-    client = motor.motor_tornado.MotorClient()
-    db = client.test
-    res = await db.inventory.find_one({'item':'planner'})
-    print(res, flush=True)
-
-
 class ChatHandler(tornado.websocket.WebSocketHandler):
     connections = set()
 
@@ -40,7 +33,7 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         logging.info(f'ON MESSAGE METHOD, {message}')
         client = motor.motor_tornado.MotorClient()
         db = client.test
-        res = await db.inventory.find_one({'item': 'planner'})
+        res = await db.collection.find_one({'item': 'planner'})
         print(res, flush=True)
         for connection in self.connections:
             connection.write_message(message)
