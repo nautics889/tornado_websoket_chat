@@ -5,7 +5,9 @@ import tornado.websocket
 import logging
 
 import motor
-import asyncio
+from datetime import datetime
+import json
+from bson import json_util
 
 
 logging.basicConfig(format='%(asctime)s  %(levelname)-8s '
@@ -20,21 +22,31 @@ class MainHandler(tornado.web.RequestHandler):
 
 
 class ChatHandler(tornado.websocket.WebSocketHandler):
-    connections = set()
+    connections = set()q
 
     def check_origin(self, origin: str) -> bool:
         return True
 
-    def open(self):
+    async def open(self):
         logging.info(f'Client connected!')
         self.connections.add(self)
+
+        client = motor.motor_tornado.MotorClient()
+        db = client.test
+        async for m in db.foobar.find({}, limit=5).sort([('_id', -1)]):
+            m.pop('_id')
+            #m['timestamp'] = str(m['timestamp'])
+            self.write_message(json.dumps(m, default=str))
 
     async def on_message(self, message):
         logging.info(f'ON MESSAGE METHOD, {message}')
         client = motor.motor_tornado.MotorClient()
         db = client.test
-        res = await db.collection.find_one({'item': 'planner'})
-        print(res, flush=True)
+
+        res = await db.foobar.insert_one({'message': message,
+                                          'timestamp': datetime.now()})
+        logging.debug(res)
+
         for connection in self.connections:
             connection.write_message(message)
 
