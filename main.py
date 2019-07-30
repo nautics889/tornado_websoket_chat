@@ -22,7 +22,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 
 class ChatHandler(tornado.websocket.WebSocketHandler):
-    connections = set()q
+    connections = set()
 
     def check_origin(self, origin: str) -> bool:
         return True
