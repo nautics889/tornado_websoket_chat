@@ -7,6 +7,7 @@ import logging
 import motor
 from datetime import datetime
 import json
+import os
 
 
 logging.basicConfig(format='%(asctime)s  %(levelname)-8s '
@@ -17,7 +18,7 @@ logging.getLogger().setLevel(logging.DEBUG)
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        self.write('!TEST!')
+        self.render('index.html')
 
 
 class ChatHandler(tornado.websocket.WebSocketHandler):
@@ -35,7 +36,6 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         async for m in db.foobar.find({}, limit=5).sort([('_id', -1)]):
             data = {'content': m.pop('content'),
                     'timestamp': str(m.pop('timestamp'))}
-            logging.info(f'MESSAGE DATA: {data}')
             await self.write_message(json.dumps(data))
 
     async def on_message(self, content):
@@ -57,9 +57,14 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         logging.info('Someone has left the chat...')
 
 def make_app():
-    return tornado.web.Application([
-        (r'/', ChatHandler)
-    ], debug=True)
+    return tornado.web.Application(
+        [
+            (r'/', ChatHandler),
+            (r'/main/', MainHandler)
+        ],
+        template_path=os.path.join(os.path.dirname(__file__), "templates"),
+        static_path=os.path.join(os.path.dirname(__file__), "static"),
+        debug=True)
 
 if __name__ == "__main__":
     app = make_app()
