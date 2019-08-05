@@ -1,14 +1,12 @@
+import json
+import logging
+import os
+from datetime import datetime
+
+import motor
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
-
-import logging
-
-import motor
-from datetime import datetime
-import json
-import os
-
 
 logging.basicConfig(format='%(asctime)s  %(levelname)-8s '
                            '[%(filename)s:%(lineno)d] %(message)s',
@@ -24,6 +22,12 @@ class MainHandler(tornado.web.RequestHandler):
 class ChatHandler(tornado.websocket.WebSocketHandler):
     connections = set()
 
+    def _deserialize_message(self, data):
+        try:
+            return json.loads(data)
+        except json.JSONDecodeError as e:
+            logging.warning('Invalid message recieved: %s' % str(e))
+
     def check_origin(self, origin: str) -> bool:
         return True
 
@@ -38,7 +42,10 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
                     'timestamp': str(m.pop('timestamp'))}
             await self.write_message(json.dumps(data))
 
-    async def on_message(self, content):
+    async def on_message(self, raw_data):
+        data = self._deserialize_message(raw_data)
+        content = data.get('content')
+
         logging.info(f'ON MESSAGE METHOD, {content}')
 
         received_at = datetime.now()
