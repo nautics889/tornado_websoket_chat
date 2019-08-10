@@ -60,7 +60,8 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
             connection.write_message({'content': content,
                                       'timestamp': str(received_at)})
 
-    def close(self):
+    def on_close(self) -> None:
+        self.connections.remove(self)
         logging.info('Someone has left the chat...')
 
 def make_app():
