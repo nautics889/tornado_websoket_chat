@@ -50,7 +50,7 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
 
         received_at = datetime.now()
 
-        client = motor.motor_tornado.MotorClient()
+        client = motor.motor_tornado.MotorClient('chatting_mongo_1', 27017)
         db = client.test
         res = await db.foobar.insert_one({'content': content,
                                           'timestamp': received_at})

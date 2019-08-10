@@ -1,0 +1,16 @@
+version: '3'
+services:
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: test
+
+  application:
+    build: .
+    ports:
+      - 8990:8990
+    volumes:
+      - .:/app
+    command: "python -m main"
