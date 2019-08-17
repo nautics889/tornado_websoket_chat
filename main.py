@@ -35,8 +35,7 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         logging.info(f'Client connected!')
         self.connections.add(self)
 
-        client = motor.motor_tornado.MotorClient()
-        db = client.test
+        db = self.application.mongo_client.test
         async for m in db.foobar.find({}, limit=5).sort([('_id', -1)]):
             data = {'content': m.pop('content'),
                     'timestamp': str(m.pop('timestamp'))}
@@ -50,8 +49,7 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
 
         received_at = datetime.now()
 
-        client = motor.motor_tornado.MotorClient('chatting_mongo_1', 27017)
-        db = client.test
+        db = self.application.mongo_client.test
         res = await db.foobar.insert_one({'content': content,
                                           'timestamp': received_at})
         logging.debug(res)
@@ -64,15 +62,22 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         self.connections.remove(self)
         logging.info('Someone has left the chat...')
 
+class ConcreteApplication(tornado.web.Application):
+    def __init__(self, *args, **kwargs) -> None:
+        super(ConcreteApplication, self).__init__(*args, **kwargs)
+        self.mongo_client = kwargs.get('mongo_client')
+
+
 def make_app():
-    return tornado.web.Application(
+    _ = 'mongodb://root:password@chatting_mongo_1:27017'
+    return ConcreteApplication(
         [
             (r'/', ChatHandler),
             (r'/main/', MainHandler)
         ],
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
         static_path=os.path.join(os.path.dirname(__file__), "static"),
-        debug=True)
+        debug=True, mongo_client=motor.motor_tornado.MotorClient(_))
 
 if __name__ == "__main__":
     app = make_app()
