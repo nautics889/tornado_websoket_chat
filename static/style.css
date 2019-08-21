@@ -1,0 +1,10 @@
+.msg {
+    position: relative;
+    font-size: 1.3em;
+    margin-left: 150px;
+    opacity: 0;
+}
+
+#output {
+    height: 340px;
+}

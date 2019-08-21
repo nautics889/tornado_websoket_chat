@@ -31,16 +31,18 @@ $("#connect_btn").on("click", function() {
                         left: '150px',
                         opacity: 0
                     },
-                    800, function() {
-                        $(this).remove();
+                    300, function() {
+                        $(this).animate({height: '0px', margin: '0px'}, 100, function() {
+                            $(this).remove();
+                        });
                     }
                 );
-                $(".msg").slice(number_of_messages - 5).animate(
-                    {
-                        bottom: $(".msg").outerHeight(true),
-                    },
-                    800
-                );
+//                $(".msg").slice(number_of_messages - 5).animate(
+//                    {
+//                        bottom: $(".msg").outerHeight(true),
+//                    },
+//                    800
+//                );
             };
         };
     }
