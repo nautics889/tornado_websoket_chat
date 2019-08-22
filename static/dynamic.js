@@ -2,7 +2,7 @@ let ws_connection;
 
 $("#connect_btn").on("click", function() {
     if (!ws_connection) {
-        ws_connection = new WebSocket("ws://localhost:8990/");
+        ws_connection = new WebSocket("ws://37.57.82.158:8990/");
         console.log(ws_connection);
 
         $("#connect_btn").html('Disconnect');
