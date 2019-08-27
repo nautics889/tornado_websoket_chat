@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!-- Path should be correct -->
+<!DOCTYPE tsung SYSTEM "/usr/share/tsung/tsung-1.0.dtd" [] >
+<tsung loglevel="info">
+  <clients>
+    <client host="localhost" use_controller_vm="true" maxusers="3000"/>
+  </clients>
+
+  <servers>
+    <server host="37.57.82.158" port="8990" type="tcp"></server>
+  </servers>
+
+  <load>
+    <arrivalphase phase="1" duration="5" unit="second">
+      <users arrivalrate="150" unit="second"/>
+    </arrivalphase>
+  </load>
+
+  <sessions>
+    <session name="ws_analisys_load" weight="1" type="ts_http">
+      <request>
+        <http url="/main/" method="GET"></http>
+      </request>
+    </session>
+  </sessions>
+</tsung>
