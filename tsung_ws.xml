@@ -11,15 +11,24 @@
   </servers>
 
   <load>
-    <arrivalphase phase="1" duration="5" unit="second">
-      <users arrivalrate="150" unit="second"/>
+    <arrivalphase phase="1" duration="2" unit="second">
+      <users arrivalrate="5" unit="second"/>
     </arrivalphase>
   </load>
 
+  <options>
+    <option name="ports_range" min="1025" max="65535"/>
+    <option name="websocket_path" value="/"/>
+  </options>
+
   <sessions>
-    <session name="ws_analisys_load" weight="1" type="ts_http">
+    <session name="ws_analisys_load" weight="1" type="ts_websocket">
       <request>
-        <http url="/main/" method="GET"></http>
+        <websocket type="connect" path="/" ack="no_ack"></websocket>
+      </request>
+      <thinktime value="1" random="true"></thinktime>
+      <request>
+        <websocket type="message">{"content": "foobar"}</websocket>
       </request>
     </session>
   </sessions>
