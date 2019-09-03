@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from datetime import datetime
+from typing import Any, Union
 
 import motor
 import tornado.ioloop
@@ -14,21 +15,36 @@ logging.basicConfig(format='%(asctime)s  %(levelname)-8s '
 logging.getLogger().setLevel(logging.DEBUG)
 
 
-class MainHandler(tornado.web.RequestHandler):
-    def get(self):
+class StartPageHandler(tornado.web.RequestHandler):
+    """A handler which contains methods to handle a start page."""
+    def get(self, *args: Any) -> None:
+        """A method to handle GET-requests.
+
+        :return: None
+        """
         self.render('index.html')
 
 
 class ChatHandler(tornado.websocket.WebSocketHandler):
+    """Main websocket handler responsible to hadle WS-messages.
+
+    Attributes:
+        connections (set): set of living WS-connections.
+    """
     connections = set()
 
-    def _deserialize_message(self, data):
+    def _deserialize_message(self, data: str):
         try:
             return json.loads(data)
         except json.JSONDecodeError as e:
             logging.warning('Invalid message recieved: %s' % str(e))
 
     def check_origin(self, origin: str) -> bool:
+        """A method to verify CORS.
+
+        :param origin (str): CORS
+        :return (bool): flag represents allowance status
+        """
         return True
 
     async def open(self):
@@ -73,7 +89,7 @@ def make_app():
     return ConcreteApplication(
         [
             (r'/', ChatHandler),
-            (r'/main/', MainHandler)
+            (r'/main/', StartPageHandler)
         ],
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
         static_path=os.path.join(os.path.dirname(__file__), "static"),

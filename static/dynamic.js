@@ -37,12 +37,6 @@ $("#connect_btn").on("click", function() {
                         });
                     }
                 );
-//                $(".msg").slice(number_of_messages - 5).animate(
-//                    {
-//                        bottom: $(".msg").outerHeight(true),
-//                    },
-//                    800
-//                );
             };
         };
     }
