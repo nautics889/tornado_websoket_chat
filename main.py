@@ -3,6 +3,7 @@ import logging
 import os
 from datetime import datetime
 from typing import Any, Union
+from random import randint
 
 import motor
 import tornado.ioloop
@@ -78,11 +79,23 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         self.connections.remove(self)
         logging.info('Someone has left the chat...')
 
+    @staticmethod
+    def send_performance_data():
+        for connection in ChatHandler.connections:
+            connection.write_message({'type': 'performance_info_message',
+                                      'msg': [randint(1,10) for _ in range(4)]})
+
+
 class ConcreteApplication(tornado.web.Application):
     def __init__(self, *args, **kwargs) -> None:
         super(ConcreteApplication, self).__init__(*args, **kwargs)
-        self.mongo_client = kwargs.get('mongo_client')
 
+        self.performance_broadcasting_task = tornado.ioloop.PeriodicCallback(
+            ChatHandler.send_performance_data,
+            2000
+        )
+
+        self.mongo_client = kwargs.get('mongo_client')
 
 def make_app():
     _ = 'mongodb://root:password@chatting_mongo_1:27017'
@@ -98,4 +111,5 @@ def make_app():
 if __name__ == "__main__":
     app = make_app()
     app.listen(8990)
+    app.performance_broadcasting_task.start()
     tornado.ioloop.IOLoop.current().start()

@@ -8,3 +8,8 @@
 #output {
     height: 340px;
 }
+
+#chart {
+    max-width: 650px;
+    margin: 35px auto;
+}
