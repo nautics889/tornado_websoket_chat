@@ -14,3 +14,9 @@ services:
     volumes:
       - .:/app
     command: "python -m main"
+#
+#  tsung:
+#    image: prima/tsung:1.6
+#    volumes:
+#      - .:/app
+#    command: "-f /app/tsung_ws.xml start; eval `sleep 3600`"

@@ -1,8 +1,9 @@
 import json
 import logging
 import os
+import psutil
 from datetime import datetime
-from typing import Any, Union
+from typing import Any
 
 import motor
 import tornado.ioloop
@@ -78,11 +79,31 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         self.connections.remove(self)
         logging.info('Someone has left the chat...')
 
+    @staticmethod
+    def send_performance_data() -> None:
+        """Send performance data to all connected users."""
+        num_of_cores = psutil.cpu_count()
+        if not num_of_cores:
+            logging.warning('Could not define number of CPU cores!')
+            return
+
+        data = {'type': 'performance_info_message',
+                'number_of_cores': [num for num in range(1, num_of_cores+1)],
+                'cpu_usage': psutil.cpu_percent(percpu=True)}
+        for connection in ChatHandler.connections:
+            connection.write_message(data)
+
+
 class ConcreteApplication(tornado.web.Application):
     def __init__(self, *args, **kwargs) -> None:
         super(ConcreteApplication, self).__init__(*args, **kwargs)
-        self.mongo_client = kwargs.get('mongo_client')
 
+        self.performance_broadcasting_task = tornado.ioloop.PeriodicCallback(
+            ChatHandler.send_performance_data,
+            2000
+        )
+
+        self.mongo_client = kwargs.get('mongo_client')
 
 def make_app():
     _ = 'mongodb://root:password@chatting_mongo_1:27017'
@@ -98,4 +119,5 @@ def make_app():
 if __name__ == "__main__":
     app = make_app()
     app.listen(8990)
+    app.performance_broadcasting_task.start()
     tornado.ioloop.IOLoop.current().start()

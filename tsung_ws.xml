@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!-- Path should be correct -->
+<!DOCTYPE tsung SYSTEM "/usr/share/tsung/tsung-1.0.dtd" [] >
+<tsung loglevel="info">
+  <clients>
+    <client host="localhost" use_controller_vm="true" maxusers="3000"/>
+  </clients>
+
+  <servers>
+    <server host="37.57.82.158" port="8990" type="tcp"></server>
+  </servers>
+
+  <load>
+    <arrivalphase phase="1" duration="2" unit="second">
+      <users arrivalrate="5" unit="second"/>
+    </arrivalphase>
+  </load>
+
+  <options>
+    <option name="ports_range" min="1025" max="65535"/>
+    <option name="websocket_path" value="/"/>
+  </options>
+
+  <sessions>
+    <session name="ws_analisys_load" weight="1" type="ts_websocket">
+      <request>
+        <websocket type="connect" path="/" ack="no_ack"></websocket>
+      </request>
+      <thinktime value="1" random="true"></thinktime>
+      <request>
+        <websocket type="message">{"content": "foobar"}</websocket>
+      </request>
+    </session>
+  </sessions>
+</tsung>
