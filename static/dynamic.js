@@ -20,10 +20,10 @@ $("#connect_btn").on("click", function() {
             if (msg_obj.type == "performance_info_message") {
                 chart.updateOptions({series: [{
                     name: 'cpu_usage',
-                    data: msg_obj.msg
+                    data: msg_obj.cpu_usage
                 }],
                 xaxis: {
-                    categories: [1,2,3,4]
+                    categories: msg_obj.number_of_cores
                 }});
             }
             else {
@@ -54,6 +54,11 @@ $("#connect_btn").on("click", function() {
         };
         var options = {
             chart: {
+                yaxis: {
+                    show: true,
+                    showAlways: true,
+                    min: 100,
+                },
                 type: 'bar'
             },
             series: [{

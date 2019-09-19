@@ -1,9 +1,9 @@
 import json
 import logging
 import os
+import psutil
 from datetime import datetime
-from typing import Any, Union
-from random import randint
+from typing import Any
 
 import motor
 import tornado.ioloop
@@ -80,10 +80,18 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         logging.info('Someone has left the chat...')
 
     @staticmethod
-    def send_performance_data():
+    def send_performance_data() -> None:
+        """Send performance data to all connected users."""
+        num_of_cores = psutil.cpu_count()
+        if not num_of_cores:
+            logging.warning('Could not define number of CPU cores!')
+            return
+
+        data = {'type': 'performance_info_message',
+                'number_of_cores': [num for num in range(1, num_of_cores+1)],
+                'cpu_usage': psutil.cpu_percent(percpu=True)}
         for connection in ChatHandler.connections:
-            connection.write_message({'type': 'performance_info_message',
-                                      'msg': [randint(1,10) for _ in range(4)]})
+            connection.write_message(data)
 
 
 class ConcreteApplication(tornado.web.Application):
