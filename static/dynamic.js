@@ -22,6 +22,9 @@ $("#connect_btn").on("click", function() {
                     name: 'cpu_usage',
                     data: msg_obj.cpu_usage
                 }],
+                yaxis: {
+                    max: 100
+                },
                 xaxis: {
                     categories: msg_obj.number_of_cores
                 }});
@@ -53,12 +56,10 @@ $("#connect_btn").on("click", function() {
             };
         };
         var options = {
+            yaxis: {
+                max: 100
+            },
             chart: {
-                yaxis: {
-                    show: true,
-                    showAlways: true,
-                    min: 100,
-                },
                 type: 'bar'
             },
             series: [{
