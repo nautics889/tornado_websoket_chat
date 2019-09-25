@@ -89,7 +89,9 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
 
         data = {'type': 'performance_info_message',
                 'number_of_cores': [num for num in range(1, num_of_cores+1)],
-                'cpu_usage': psutil.cpu_percent(percpu=True)}
+                'cpu_usage': psutil.cpu_percent(percpu=True),
+                'ram_available': psutil.virtual_memory().available,
+                'ram_used': psutil.virtual_memory().used}
         for connection in ChatHandler.connections:
             connection.write_message(data)
 
@@ -100,7 +102,7 @@ class ConcreteApplication(tornado.web.Application):
 
         self.performance_broadcasting_task = tornado.ioloop.PeriodicCallback(
             ChatHandler.send_performance_data,
-            2000
+            500
         )
 
         self.mongo_client = kwargs.get('mongo_client')

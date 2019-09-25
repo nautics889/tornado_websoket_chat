@@ -9,7 +9,14 @@
     height: 340px;
 }
 
-#chart {
-    max-width: 650px;
-    margin: 35px auto;
+#chart_wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.chart_item {
+    max-width: 350px;
+    max-height: 250px;
+    margin: 35px;
 }

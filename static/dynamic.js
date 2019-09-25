@@ -18,7 +18,7 @@ $("#connect_btn").on("click", function() {
         ws_connection.onmessage = function(event) {
             msg_obj = JSON.parse(event.data)
             if (msg_obj.type == "performance_info_message") {
-                chart.updateOptions({series: [{
+                cpu_chart.updateOptions({series: [{
                     name: 'cpu_usage',
                     data: msg_obj.cpu_usage
                 }],
@@ -28,6 +28,7 @@ $("#connect_btn").on("click", function() {
                 xaxis: {
                     categories: msg_obj.number_of_cores
                 }});
+                ram_chart.updateOptions({series: [msg_obj.ram_used, msg_obj.ram_available]});
             }
             else {
                 msg = $(`<p class="msg">${event.data}</p>`).appendTo("#output");
@@ -55,7 +56,7 @@ $("#connect_btn").on("click", function() {
                 };
             };
         };
-        var options = {
+        var cpu_chart_options = {
             yaxis: {
                 max: 100
             },
@@ -69,11 +70,30 @@ $("#connect_btn").on("click", function() {
             xaxis: {
                 categories: [1,2,3,4]
             }
-        }
+        };
 
-        chart = new ApexCharts(document.querySelector("#chart"), options);
+        var ram_chart_options = {
+            chart: {
+                width: 380,
+                type: 'pie'
+            },
+            labels: ['Used', 'Free'],
+            series: [0, 0],
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }]
+        };
 
-        chart.render();
+        cpu_chart = new ApexCharts(document.querySelector('#cpu_chart'), cpu_chart_options);
+        ram_chart = new ApexCharts(document.querySelector('#ram_chart'), ram_chart_options)
+
+        ram_chart.render();
+        cpu_chart.render();
     }
     else if (ws_connection instanceof WebSocket) {
         if(ws_connection.readyState == 1) {
