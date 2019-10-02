@@ -90,8 +90,7 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         data = {'type': 'performance_info_message',
                 'number_of_cores': [num for num in range(1, num_of_cores+1)],
                 'cpu_usage': psutil.cpu_percent(percpu=True),
-                'ram_available': psutil.virtual_memory().available,
-                'ram_used': psutil.virtual_memory().used}
+                'ram_used': psutil.virtual_memory().percent}
         for connection in ChatHandler.connections:
             connection.write_message(data)
 

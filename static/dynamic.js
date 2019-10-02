@@ -1,34 +1,33 @@
-let ws_connection;
-let chart;
+let wsConnection;
 
 $("#connect_btn").on("click", function() {
-    if (!ws_connection) {
-        ws_connection = new WebSocket("ws://37.57.82.158:8990/");
-        console.log(ws_connection);
+    if (!wsConnection) {
+        wsConnection = new WebSocket("ws://37.57.82.158:8990/");
+        console.log(wsConnection);
 
         $("#connect_btn").html('Disconnect');
         $("#output").append(`<input type="text" id="message_to_send">`);
         $("#output").append(`<button id="send_btn">Send</button>`);
         $("#send_btn").on("click", function() {
-            ws_connection.send(JSON.stringify({
+            wsConnection.send(JSON.stringify({
                 content: $("#message_to_send").val()
             }));
         });
 
-        ws_connection.onmessage = function(event) {
+        wsConnection.onmessage = function(event) {
             msg_obj = JSON.parse(event.data)
             if (msg_obj.type == "performance_info_message") {
                 cpu_chart.updateOptions({series: [{
                     name: 'cpu_usage',
                     data: msg_obj.cpu_usage
-                }],
-                yaxis: {
+                  }],
+                  yaxis: {
                     max: 100
-                },
-                xaxis: {
+                  },
+                  xaxis: {
                     categories: msg_obj.number_of_cores
                 }});
-                ram_chart.updateOptions({series: [msg_obj.ram_used, msg_obj.ram_available]});
+                ram_chart.updateOptions({series: [msg_obj.ram_used]});
             }
             else {
                 msg = $(`<p class="msg">${event.data}</p>`).appendTo("#output");
@@ -75,18 +74,10 @@ $("#connect_btn").on("click", function() {
         var ram_chart_options = {
             chart: {
                 width: 380,
-                type: 'pie'
+                type: 'radialBar'
             },
-            labels: ['Used', 'Free'],
-            series: [0, 0],
-            responsive: [{
-                breakpoint: 480,
-                options: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }]
+            series: [70],
+            labels: ['RAM used'],
         };
 
         cpu_chart = new ApexCharts(document.querySelector('#cpu_chart'), cpu_chart_options);
@@ -95,9 +86,9 @@ $("#connect_btn").on("click", function() {
         ram_chart.render();
         cpu_chart.render();
     }
-    else if (ws_connection instanceof WebSocket) {
-        if(ws_connection.readyState == 1) {
-            ws_connection.close();
+    else if (wsConnection instanceof WebSocket) {
+        if(wsConnection.readyState == 1) {
+            wsConnection.close();
             $("#connect_btn").html('Disconnect');
         }
     };
