@@ -1,8 +1,12 @@
 let wsConnection;
 
-$('#connect_btn').on('click', function () {
+function wrapper(host, port) {
+var host = host;
+var port = port;
+
+function startConnection() {
   if (!wsConnection) {
-    wsConnection = new WebSocket('ws://37.57.82.158:8990/')
+    wsConnection = new WebSocket('ws://' + host + ':' + port + '/')
 
     $('#connect_btn').html('Disconnect')
     $('#output').append('<input type="text" id="message_to_send">')
@@ -90,4 +94,6 @@ $('#connect_btn').on('click', function () {
       $('#connect_btn').html('Disconnect')
     }
   };
-})
+};
+return startConnection;
+};

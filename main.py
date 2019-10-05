@@ -23,7 +23,8 @@ class StartPageHandler(tornado.web.RequestHandler):
 
         :return: None
         """
-        self.render('index.html')
+        #@TODO: move to config file
+        self.render('index.html', HOSTNAME='<ip_address>', PORT=8990)
 
 
 class ChatHandler(tornado.websocket.WebSocketHandler):
@@ -49,7 +50,7 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         return True
 
     async def open(self):
-        logging.info(f'Client connected!')
+        logging.info('Client connected!')
         self.connections.add(self)
 
         db = self.application.mongo_client.test
@@ -62,7 +63,7 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         data = self._deserialize_message(raw_data)
         content = data.get('content')
 
-        logging.info(f'ON MESSAGE METHOD, {content}')
+        logging.info('ON MESSAGE METHOD, %s', content)
 
         received_at = datetime.now()
 
@@ -107,6 +108,7 @@ class ConcreteApplication(tornado.web.Application):
         self.mongo_client = kwargs.get('mongo_client')
 
 def make_app():
+    # @TODO: move to config file
     _ = 'mongodb://root:password@chatting_mongo_1:27017'
     return ConcreteApplication(
         [
@@ -119,6 +121,7 @@ def make_app():
 
 if __name__ == "__main__":
     app = make_app()
+    # @TODO: move to config file
     app.listen(8990)
     app.performance_broadcasting_task.start()
     tornado.ioloop.IOLoop.current().start()
