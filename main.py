@@ -9,6 +9,7 @@ import motor
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
+from tornado.options import options
 
 logging.basicConfig(format='%(asctime)s  %(levelname)-8s '
                            '[%(filename)s:%(lineno)d] %(message)s',
@@ -23,8 +24,9 @@ class StartPageHandler(tornado.web.RequestHandler):
 
         :return: None
         """
-        #@TODO: move to config file
-        self.render('index.html', HOSTNAME='<ip_address>', PORT=8990)
+        self.render('index.html',
+                    HOSTNAME=options.HOSTNAME,
+                    PORT=options.PORT)
 
 
 class ChatHandler(tornado.websocket.WebSocketHandler):
@@ -68,9 +70,8 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         received_at = datetime.now()
 
         db = self.application.mongo_client.test
-        res = await db.foobar.insert_one({'content': content,
-                                          'timestamp': received_at})
-        logging.debug(res)
+        await db.foobar.insert_one({'content': content,
+                                    'timestamp': received_at})
 
         for connection in self.connections:
             connection.write_message({'content': content,
@@ -108,8 +109,10 @@ class ConcreteApplication(tornado.web.Application):
         self.mongo_client = kwargs.get('mongo_client')
 
 def make_app():
-    # @TODO: move to config file
-    _ = 'mongodb://root:password@chatting_mongo_1:27017'
+    _ = 'mongodb://{}:{}@{}:{}'.format(options.MONGO_USER,
+                                       options.MONGO_PASSWORD,
+                                       options.MONGO_HOSTNAME,
+                                       options.MONGO_PORT)
     return ConcreteApplication(
         [
             (r'/', ChatHandler),
@@ -120,8 +123,16 @@ def make_app():
         debug=True, mongo_client=motor.motor_tornado.MotorClient(_))
 
 if __name__ == "__main__":
+    options.define('HOSTNAME', type=str, default='localhost')
+    options.define('PORT', type=int, default=80)
+    options.define('MONGO_USER', type=str, default='root')
+    options.define('MONGO_PASSWORD', type=str, default='password')
+    options.define('MONGO_HOSTNAME', type=str, default='localhost')
+    options.define('MONGO_PORT', type=int, default=27017)
+
+    options.parse_config_file('server.conf')
+
     app = make_app()
-    # @TODO: move to config file
-    app.listen(8990)
+    app.listen(options.PORT)
     app.performance_broadcasting_task.start()
     tornado.ioloop.IOLoop.current().start()
