@@ -1,4 +1,5 @@
 let wsConnection
+$('input').prop('disabled', true)
 
 function wrapper (host, port) {
   var host = host
@@ -8,13 +9,21 @@ function wrapper (host, port) {
     if (!wsConnection) {
       wsConnection = new WebSocket('ws://' + host + ':' + port + '/')
 
-      $('#connect_btn').html('Disconnect')
-      $('#output').append('<input type="text" id="message_to_send">')
-      $('#output').append('<button id="send_btn">Send</button>')
+      $('input').prop('disabled', false)
+
       $('#send_btn').on('click', function () {
         wsConnection.send(JSON.stringify({
           content: $('#message_to_send').val()
         }))
+      })
+
+      $('#flood_btn').on('click', function () {
+        period = 1000 / Number($('#frequency').val())
+        dur = Number($('#duration').val()) * 1000
+        const timerId = setInterval(() => wsConnection.send(JSON.stringify({
+          content: $('#message_to_send').val()
+        })), period)
+        setTimeout(() => { clearInterval(timerId) }, dur)
       })
 
       wsConnection.onmessage = function (event) {
