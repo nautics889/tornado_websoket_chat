@@ -9,10 +9,18 @@
     height: 340px;
 }
 
-#chart_wrapper {
+#send_btn {
+    margin-right: 10%;
+}
+
+#flex_wrapper {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
+}
+
+.control_bar_item {
+    margin: 35px;
 }
 
 .chart_item {
@@ -20,3 +28,4 @@
     max-height: 250px;
     margin: 35px;
 }
+

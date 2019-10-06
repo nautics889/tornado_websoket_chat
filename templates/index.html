@@ -6,9 +6,19 @@
     <link rel="stylesheet" href="{{ static_url("style.css") }}">
 </head>
 <body>
-    <div id="output"></div>
+    <div id="output">
+        <div id="control_bar" class="flex_wrapper">
+            <input type="text" id="message_to_send">
+            <button id="send_btn">Send</button>
+            <span>Frequency (messages per second):</span>
+            <input type="number" value="1" id="frequency" min="1" max="10">
+            <span>Duration (secs):</span>
+            <input type="number" value="5" id="duration" min="5" max="60" step="5">
+            <button id="flood_btn">Flood</button>
+        </div>
+    </div>
     <button id="connect_btn">Connect</button>
-    <div id="chart_wrapper">
+    <div id="flex_wrapper">
         <div class="chart_item">
             <p>CPU usage chart (%):</p>
             <div id="cpu_chart"></div>
