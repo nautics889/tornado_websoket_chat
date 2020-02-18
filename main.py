@@ -41,7 +41,7 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         try:
             return json.loads(data)
         except json.JSONDecodeError as e:
-            logging.warning('Invalid message recieved: %s' % str(e))
+            LOGGER.warning('Invalid message recieved: %s' % str(e))
 
     def check_origin(self, origin: str) -> bool:
         """A method to verify CORS.
@@ -52,7 +52,7 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         return True
 
     async def open(self):
-        logging.info('Client connected!')
+        LOGGER.info('Client connected!')
         self.connections.add(self)
 
         db = self.application.mongo_client.test
@@ -65,7 +65,7 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         data = self._deserialize_message(raw_data)
         content = data.get('content')
 
-        logging.info('ON MESSAGE METHOD, %s', content)
+        LOGGER.info('ON MESSAGE METHOD, %s', content)
 
         received_at = datetime.now()
 
@@ -79,14 +79,14 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
 
     def on_close(self) -> None:
         self.connections.remove(self)
-        logging.info('Someone has left the chat...')
+        LOGGER.info('Someone has left the chat...')
 
     @staticmethod
     def send_performance_data() -> None:
         """Send performance data to all connected users."""
         num_of_cores = psutil.cpu_count()
         if not num_of_cores:
-            logging.warning('Could not define number of CPU cores!')
+            LOGGER.warning('Could not define number of CPU cores!')
             return
 
         data = {'type': 'performance_info_message',
