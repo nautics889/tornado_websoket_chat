@@ -14,7 +14,7 @@ from tornado.options import options
 logging.basicConfig(format='%(asctime)s  %(levelname)-8s '
                            '[%(filename)s:%(lineno)d] %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S')
-logging.getLogger().setLevel(logging.DEBUG)
+LOGGER = logging.getLogger()
 
 
 class StartPageHandler(tornado.web.RequestHandler):
@@ -123,6 +123,8 @@ def make_app():
         debug=True, mongo_client=motor.motor_tornado.MotorClient(_))
 
 if __name__ == "__main__":
+    LOGGER.setLevel(logging.DEBUG)
+
     options.define('HOSTNAME', type=str, default='localhost')
     options.define('PORT', type=int, default=80)
     options.define('MONGO_USER', type=str, default='root')
